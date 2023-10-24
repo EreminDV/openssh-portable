@@ -2408,6 +2408,7 @@ channel_handler(struct ssh *ssh, int table,
 			else
 				continue;
 		}
+		ssh_packet_log_statistics(ssh, "periodic", c);
 		if (ftab[c->type] != NULL) {
 			/*
 			 * Run handlers that are not paused.

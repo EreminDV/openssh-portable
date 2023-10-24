@@ -2658,6 +2658,8 @@ do_cleanup(struct ssh *ssh, Authctxt *authctxt)
 	if (authctxt == NULL)
 		return;
 
+ssh_packet_log_statistics(ssh, "end", NULL);
+
 #ifdef USE_PAM
 	if (options.use_pam) {
 		sshpam_cleanup();

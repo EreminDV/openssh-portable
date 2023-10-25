@@ -679,10 +679,10 @@ server_input_channel_open(int type, u_int32_t seq, struct ssh *ssh)
 				    "%s: send open confirm", __func__);
 			}
 		}
-		logit("Audit: channel_open, user %s, from %s:%u, jumphost %s:%u, target %s:%u, self %d, remote_id %d, path %s, listening_port %d, listening_addr %s, host_port %d, remote_name %s, xctype %s",
+		logit("Audit: channel_open, user %s, from %s:%u, jumphost %s:%u, target %s:%u, self %d, remote_id %d, path %s, listening_port %d, listening_addr %s, host_port %d, remote_name %s, ctype %s, xctype n/a",
 		    the_authctxt->user, ssh_remote_ipaddr(ssh), ssh_remote_port(ssh), ssh_local_ipaddr(ssh), ssh_local_port(ssh),
 		    c->path, c->host_port,
-		    c->self, c->remote_id, c->path, c->listening_port, c->listening_addr, c->host_port, c->remote_name, c->xctype
+		    c->self, c->remote_id, c->path, c->listening_port, c->listening_addr, c->host_port, c->remote_name, c->ctype
 		    );		
 	} else {
 		debug_f("failure %s", ctype);

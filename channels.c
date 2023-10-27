@@ -2226,6 +2226,7 @@ channel_handler(chan_fn *ftab[], fd_set *readset, fd_set *writeset,
 			else
 				continue;
 		}
+		ssh_packet_log_statistics(ssh, "periodic", c);
 		if (ftab[c->type] != NULL) {
 			/*
 			 * Run handlers that are not paused.

@@ -94,6 +94,7 @@ void	 ssh_packet_set_encryption_key(struct ssh *, const u_char *, u_int, int);
 void	 ssh_packet_set_input_hook(struct ssh *, ssh_packet_hook_fn *, void *);
 
 int	 ssh_packet_is_rekeying(struct ssh *);
+void 	 ssh_packet_log_statistics(struct ssh *,char * stat_type, void * c);
 void     ssh_packet_set_protocol_flags(struct ssh *, u_int);
 u_int	 ssh_packet_get_protocol_flags(struct ssh *);
 int      ssh_packet_start_compression(struct ssh *, int);

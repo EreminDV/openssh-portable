@@ -105,6 +105,7 @@ void	 ssh_packet_clear_keys(struct ssh *);
 void	 ssh_clear_newkeys(struct ssh *, int);
 
 int	 ssh_packet_is_rekeying(struct ssh *);
+void 	 ssh_packet_log_statistics(struct ssh *,char * stat_type, void * c);
 void     ssh_packet_set_protocol_flags(struct ssh *, u_int);
 u_int	 ssh_packet_get_protocol_flags(struct ssh *);
 void	 ssh_packet_set_tos(struct ssh *, int);

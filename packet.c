@@ -974,6 +974,48 @@ ssh_packet_need_rekeying(struct ssh *ssh, u_int outbound_packet_len)
 	    (state->p_read.blocks > state->max_blocks_in));
 }
 
+void
+ssh_packet_log_statistics(struct ssh *ssh, char * stat_type, void  *c)
+{
+	struct session_state *state = ssh->state;
+	static u_int64_t in_bytes_prev = 0, out_bytes_prev = 0;
+	u_int64_t in_bytes, out_bytes, in_bytes_delta, out_bytes_delta;
+	//time_t now; time(&now);
+	static time_t last_stat_time = 0;
+	const u_int32_t stat_period_seconds = 10;
+
+	if (stat_period_seconds == 0)
+	    return;
+	if (strcmp(stat_type,"end")!=0 && (int64_t)last_stat_time + stat_period_seconds > monotime())
+	    return;
+
+
+	char * target_host = "n/a";
+	int target_port = 0, cha_id = -2;
+	if (c != NULL) {
+	    Channel * cha = (Channel*) c;
+	    target_host = cha->path;
+	    target_port = cha->host_port;
+	    cha_id = cha->self;
+	}
+
+	last_stat_time = monotime();
+	ssh_packet_get_bytes(ssh, &in_bytes, &out_bytes);
+	in_bytes_delta = in_bytes - in_bytes_prev;
+	out_bytes_delta = out_bytes - out_bytes_prev;
+	in_bytes_prev = in_bytes;
+	out_bytes_prev = out_bytes;
+
+	logit("Audit: stat_session %s, from %s:%u, jumphost %s:%u, target %s:%u, channel %d, stat_type %s, bytes_send_delta %lu, bytes_send_total %llu, bytes_read_delta %lu, bytes_read_total %llu, stat_period_sec %u",
+	    ssh->log_preamble, ssh_remote_ipaddr(ssh), ssh_remote_port(ssh), ssh_local_ipaddr(ssh), ssh_local_port(ssh),
+	    target_host, target_port, cha_id, stat_type,
+	    out_bytes_delta, (unsigned long long)out_bytes,
+	    in_bytes_delta, (unsigned long long)in_bytes,
+	    stat_period_seconds
+	);
+
+}
+
 /*
  * Delayed compression for SSH2 is enabled after authentication:
  * This happens on the server side after a SSH2_MSG_USERAUTH_SUCCESS is sent,

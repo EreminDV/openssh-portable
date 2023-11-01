@@ -503,6 +503,10 @@ server_request_direct_tcpip(struct ssh *ssh, int *reason, const char **errmsg)
 	debug("%s: originator %s port %u, target %s port %u", __func__,
 	    originator, originator_port, target, target_port);
 
+	logit("Audit: request ssh_direct_tcpip, user %s, from %s:%u, jumphost %s:%u, target %s:%u",
+	    the_authctxt->user, ssh_remote_ipaddr(ssh), ssh_remote_port(ssh), ssh_local_ipaddr(ssh), ssh_local_port(ssh),
+	    target, target_port);
+
 	/* XXX fine grained permissions */
 	if ((options.allow_tcp_forwarding & FORWARD_LOCAL) != 0 &&
 	    auth_opts->permit_port_forwarding_flag &&
@@ -547,6 +551,10 @@ server_request_direct_streamlocal(struct ssh *ssh)
 
 	debug("%s: originator %s port %d, target %s", __func__,
 	    originator, originator_port, target);
+
+	logit("Audit: request ssh_direct_streamlocal, user %s, from %s:%u, jumphost %s:%u, target %s",
+	    the_authctxt->user, ssh_remote_ipaddr(ssh), ssh_remote_port(ssh), ssh_local_ipaddr(ssh), ssh_local_port(ssh),
+	    target);
 
 	/* XXX fine grained permissions */
 	if ((options.allow_streamlocal_forwarding & FORWARD_LOCAL) != 0 &&
@@ -607,6 +615,10 @@ server_request_tun(struct ssh *ssh)
 		goto done;
 	debug("Tunnel forwarding using interface %s", ifname);
 
+	logit("Audit: request ssh_tunnel, user %s, from %s:%u, jumphost %s:%u, tunnel mode %u ifname %s",
+	    the_authctxt->user, ssh_remote_ipaddr(ssh), ssh_remote_port(ssh), ssh_local_ipaddr(ssh), ssh_local_port(ssh),
+	    mode, ifname);
+
 	c = channel_new(ssh, "tun", SSH_CHANNEL_OPEN, sock, sock, -1,
 	    CHAN_TCP_WINDOW_DEFAULT, CHAN_TCP_PACKET_DEFAULT, 0, "tun", 1);
 	c->datagram = 1;
@@ -659,6 +671,11 @@ server_request_session(struct ssh *ssh)
 	c = channel_new(ssh, "session", SSH_CHANNEL_LARVAL,
 	    -1, -1, -1, /*window size*/0, CHAN_SES_PACKET_DEFAULT,
 	    0, "server-session", 1);
+
+	logit("Audit: request ssh_session, user %s, from %s:%u, jumphost %s:%u, session_channel %d",
+	    the_authctxt->user, ssh_remote_ipaddr(ssh), ssh_remote_port(ssh), ssh_local_ipaddr(ssh), ssh_local_port(ssh),
+	    c->self);		
+
 	if (session_open(the_authctxt, c->self) != 1) {
 		debug("session open failed, free channel %d", c->self);
 		channel_free(ssh, c);
@@ -713,6 +730,11 @@ server_input_channel_open(int type, u_int32_t seq, struct ssh *ssh)
 				    "%s: send open confirm", __func__);
 			}
 		}
+		logit("Audit: channel_open, user %s, from %s:%u, jumphost %s:%u, target %s:%u, self %d, remote_id %d, path %s, listening_port %d, listening_addr %s, host_port %d, remote_name %s, ctype %s, xctype n/a",
+		    the_authctxt->user, ssh_remote_ipaddr(ssh), ssh_remote_port(ssh), ssh_local_ipaddr(ssh), ssh_local_port(ssh),
+		    c->path, c->host_port,
+			c->self, c->remote_id, c->path, c->listening_port, c->listening_addr, c->host_port, c->remote_name, c->ctype /*,c->xctype*/
+		    );		
 	} else {
 		debug("%s: failure %s", __func__, ctype);
 		if ((r = sshpkt_start(ssh, SSH2_MSG_CHANNEL_OPEN_FAILURE)) != 0 ||
